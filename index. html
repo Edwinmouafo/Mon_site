@@ -1,11 +1,1102 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page Hello World</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NOIR — Collection</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0a;
+      --bg2: #111111;
+      --bg3: #1a1a1a;
+      --gold: #c9a84c;
+      --gold2: #e8c97a;
+      --white: #f5f0e8;
+      --grey: #888880;
+      --accent: #8b1a1a;
+      --font-display: 'Playfair Display', serif;
+      --font-body: 'Cormorant Garamond', serif;
+      --font-mono: 'Space Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: var(--font-body);
+      font-size: 18px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ─── CURSOR ─── */
+    body { cursor: none; }
+    #cursor {
+      width: 12px; height: 12px;
+      background: var(--gold);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s ease, width 0.3s, height 0.3s, background 0.3s;
+      mix-blend-mode: difference;
+    }
+    #cursor.grow { width: 40px; height: 40px; background: var(--white); }
+
+    /* ─── NOISE OVERLAY ─── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      background-size: 200px;
+      pointer-events: none;
+      z-index: 9998;
+      opacity: 0.6;
+    }
+
+    /* ─── NAVBAR ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 1000;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.5rem 4rem;
+      background: linear-gradient(to bottom, rgba(10,10,10,0.95), transparent);
+      backdrop-filter: blur(8px);
+      transition: background 0.4s;
+    }
+    nav.scrolled { background: rgba(10,10,10,0.98); }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 900;
+      letter-spacing: 0.3em;
+      color: var(--gold);
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex; gap: 3rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--grey);
+      text-decoration: none;
+      transition: color 0.3s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute; bottom: -4px; left: 0;
+      width: 0; height: 1px;
+      background: var(--gold);
+      transition: width 0.3s;
+    }
+    .nav-links a:hover { color: var(--white); }
+    .nav-links a:hover::after { width: 100%; }
+
+    /* ─── HAMBURGER ─── */
+    .hamburger {
+      display: none;
+      flex-direction: column; gap: 5px;
+      background: none; border: none;
+      cursor: none; padding: 4px;
+    }
+    .hamburger span {
+      display: block; width: 28px; height: 2px;
+      background: var(--gold);
+      transition: all 0.4s cubic-bezier(0.77,0,0.18,1);
+      transform-origin: center;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ─── MOBILE MENU ─── */
+    .mobile-menu {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.97);
+      z-index: 999;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 3rem;
+      opacity: 0; pointer-events: none;
+      transform: translateY(-20px);
+      transition: opacity 0.4s, transform 0.4s;
+    }
+    .mobile-menu.open { opacity: 1; pointer-events: all; transform: translateY(0); }
+    .mobile-menu a {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--white);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      transition: color 0.3s;
+    }
+    .mobile-menu a:hover { color: var(--gold); }
+
+    /* ─── HERO ─── */
+    #hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: flex-start;
+      padding: 0 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: 
+        radial-gradient(ellipse 80% 60% at 80% 50%, rgba(139,26,26,0.12), transparent 70%),
+        radial-gradient(ellipse 50% 80% at 20% 80%, rgba(201,168,76,0.06), transparent 60%),
+        linear-gradient(135deg, #0a0a0a 0%, #111 50%, #0a0a0a 100%);
+    }
+
+    .hero-line {
+      position: absolute;
+      width: 1px; height: 40vh;
+      background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+      right: 25%; top: 20%;
+      animation: lineFloat 4s ease-in-out infinite;
+    }
+    @keyframes lineFloat { 0%,100%{opacity:0.3; transform:translateY(0)} 50%{opacity:0.8; transform:translateY(20px)} }
+
+    .hero-tag {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp 1s 0.3s forwards;
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: clamp(4rem, 10vw, 10rem);
+      font-weight: 900;
+      line-height: 0.9;
+      letter-spacing: -0.02em;
+      opacity: 0;
+      animation: fadeUp 1s 0.5s forwards;
+    }
+    h1 em {
+      font-style: italic;
+      color: var(--gold);
+      display: block;
+    }
+
+    .hero-sub {
+      font-family: var(--font-body);
+      font-size: 1.2rem;
+      font-weight: 300;
+      color: var(--grey);
+      margin-top: 2.5rem;
+      max-width: 400px;
+      opacity: 0;
+      animation: fadeUp 1s 0.7s forwards;
+    }
+
+    .hero-cta {
+      margin-top: 3rem;
+      display: flex; gap: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 1s 0.9s forwards;
+    }
+
+    .btn-primary {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      padding: 1.1rem 2.5rem;
+      background: var(--gold);
+      color: #000;
+      border: none;
+      text-decoration: none;
+      font-weight: 700;
+      transition: background 0.3s, transform 0.2s;
+      cursor: none;
+    }
+    .btn-primary:hover { background: var(--gold2); transform: translateY(-2px); }
+
+    .btn-outline {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      padding: 1.1rem 2.5rem;
+      background: transparent;
+      color: var(--white);
+      border: 1px solid rgba(255,255,255,0.25);
+      text-decoration: none;
+      transition: border-color 0.3s, color 0.3s, transform 0.2s;
+      cursor: none;
+    }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-2px); }
+
+    .hero-scroll-hint {
+      position: absolute; bottom: 3rem; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+      font-family: var(--font-mono); font-size: 0.55rem;
+      letter-spacing: 0.3em; color: var(--grey);
+      text-transform: uppercase;
+      animation: bounce 2s infinite;
+      opacity: 0;
+      animation: fadeIn 1s 1.5s forwards, bounce 2s 2.5s infinite;
+    }
+    .hero-scroll-hint::after {
+      content: '';
+      display: block; width: 1px; height: 40px;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+    }
+    @keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+
+    /* ─── SECTION BASE ─── */
+    section { padding: 8rem 4rem; }
+    .section-tag {
+      font-family: var(--font-mono); font-size: 0.6rem;
+      letter-spacing: 0.35em; color: var(--gold);
+      text-transform: uppercase; margin-bottom: 1.5rem;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 5vw, 5rem);
+      font-weight: 700; line-height: 1.05;
+      margin-bottom: 2rem;
+    }
+    .section-title em { font-style: italic; color: var(--gold); }
+
+    /* ─── MARQUEE ─── */
+    .marquee-wrap {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 1.5rem 0;
+      overflow: hidden;
+      background: var(--bg2);
+    }
+    .marquee-track {
+      display: flex; gap: 4rem;
+      white-space: nowrap;
+      animation: marquee 18s linear infinite;
+    }
+    .marquee-track span {
+      font-family: var(--font-display);
+      font-size: 1rem; font-style: italic;
+      color: var(--grey); letter-spacing: 0.1em;
+      flex-shrink: 0;
+    }
+    .marquee-track span b { color: var(--gold); font-style: normal; }
+    @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+    /* ─── COLLECTION GRID ─── */
+    #collection { background: var(--bg2); }
+
+    .collection-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 4rem;
+    }
+
+    .card {
+      position: relative;
+      overflow: hidden;
+      background: var(--bg3);
+      aspect-ratio: 3/4;
+      cursor: none;
+      group: true;
+    }
+
+    .card-img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 5rem;
+      transition: transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    .card:hover .card-img { transform: scale(1.06); }
+
+    /* placeholder gradient cards */
+    .card:nth-child(1) .card-img { background: linear-gradient(145deg, #1c1c1c, #2a1a1a); }
+    .card:nth-child(2) .card-img { background: linear-gradient(145deg, #1a1a2a, #1c1c1c); }
+    .card:nth-child(3) .card-img { background: linear-gradient(145deg, #1a2a1a, #1c1c1c); }
+    .card:nth-child(4) .card-img { background: linear-gradient(145deg, #2a2a1a, #1c1c1c); }
+    .card:nth-child(5) .card-img { background: linear-gradient(145deg, #2a1a2a, #1c1c1c); }
+    .card:nth-child(6) .card-img { background: linear-gradient(145deg, #1a2a2a, #1c1c1c); }
+
+    .card-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 60%);
+      display: flex; flex-direction: column;
+      justify-content: flex-end;
+      padding: 2rem;
+      transform: translateY(20px);
+      transition: transform 0.4s;
+    }
+    .card:hover .card-overlay { transform: translateY(0); }
+
+    .card-label {
+      font-family: var(--font-mono); font-size: 0.6rem;
+      letter-spacing: 0.25em; color: var(--gold);
+      text-transform: uppercase; margin-bottom: 0.4rem;
+    }
+    .card-name {
+      font-family: var(--font-display); font-size: 1.6rem;
+      font-weight: 700;
+    }
+    .card-price {
+      font-family: var(--font-body); font-size: 1rem;
+      color: var(--grey); margin-top: 0.3rem;
+    }
+
+    .card-btn {
+      position: absolute; top: 1.5rem; right: 1.5rem;
+      width: 44px; height: 44px;
+      background: var(--gold);
+      border: none; cursor: none;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      opacity: 0; transform: scale(0.8);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .card:hover .card-btn { opacity: 1; transform: scale(1); }
+
+    /* ─── ABOUT / SPLIT ─── */
+    #about {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8rem;
+      align-items: center;
+    }
+
+    .about-visual {
+      position: relative;
+      height: 600px;
+    }
+    .about-rect {
+      position: absolute;
+      background: var(--bg3);
+    }
+    .about-rect:nth-child(1) {
+      width: 75%; height: 85%;
+      top: 0; right: 0;
+      background: linear-gradient(145deg, #1a1a1a, #222);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 6rem;
+    }
+    .about-rect:nth-child(2) {
+      width: 50%; height: 45%;
+      bottom: 0; left: 0;
+      background: var(--gold);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .about-rect:nth-child(2) span {
+      font-family: var(--font-display);
+      font-size: 3rem; font-weight: 900;
+      color: #000; line-height: 1;
+      text-align: center;
+    }
+    .about-rect:nth-child(3) {
+      width: 2px;
+      height: 120px;
+      background: var(--gold);
+      bottom: 45%; right: 25%;
+    }
+
+    .about-text p {
+      font-family: var(--font-body);
+      font-size: 1.15rem; font-weight: 300;
+      color: var(--grey);
+      margin-bottom: 1.5rem;
+      line-height: 1.9;
+    }
+    .about-stats {
+      display: flex; gap: 3rem; margin-top: 3rem;
+    }
+    .stat-num {
+      font-family: var(--font-display);
+      font-size: 3rem; font-weight: 900;
+      color: var(--gold); display: block;
+    }
+    .stat-label {
+      font-family: var(--font-mono); font-size: 0.6rem;
+      letter-spacing: 0.2em; color: var(--grey);
+      text-transform: uppercase;
+    }
+
+    /* ─── LOOKBOOK ─── */
+    #lookbook { background: var(--bg2); }
+
+    .lookbook-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 1rem;
+      margin-top: 3rem;
+    }
+    .look {
+      background: var(--bg3);
+      overflow: hidden;
+      position: relative;
+      cursor: none;
+    }
+    .look:nth-child(1) { grid-row: 1 / 3; }
+    .look-inner {
+      width: 100%; height: 100%; min-height: 250px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 4rem;
+      transition: transform 0.5s ease;
+    }
+    .look:hover .look-inner { transform: scale(1.04); }
+
+    .look:nth-child(1) .look-inner { min-height: 520px; background: linear-gradient(160deg,#1a1a2a,#2a1010); }
+    .look:nth-child(2) .look-inner { background: linear-gradient(160deg,#2a1a0a,#1a1a1a); }
+    .look:nth-child(3) .look-inner { background: linear-gradient(160deg,#0a2a1a,#1a1a2a); }
+    .look:nth-child(4) .look-inner { background: linear-gradient(160deg,#1a0a2a,#2a1a0a); }
+    .look:nth-child(5) .look-inner { background: linear-gradient(160deg,#1a2a0a,#2a1a1a); }
+
+    .look-caption {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 1.5rem;
+      background: linear-gradient(transparent, rgba(0,0,0,0.85));
+      font-family: var(--font-mono); font-size: 0.6rem;
+      letter-spacing: 0.2em; color: var(--grey);
+      text-transform: uppercase;
+      transform: translateY(100%);
+      transition: transform 0.35s;
+    }
+    .look:hover .look-caption { transform: translateY(0); }
+
+    /* ─── TOGGLE / THEME ─── */
+    #toggle-section {
+      text-align: center;
+      padding: 4rem;
+      background: var(--bg);
+    }
+
+    /* ─── TESTIMONIALS ─── */
+    #testimonials {
+      background: var(--accent);
+      padding: 6rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    #testimonials::before {
+      content: '"';
+      position: absolute; top: -2rem; left: 3rem;
+      font-family: var(--font-display);
+      font-size: 20rem; font-weight: 900;
+      color: rgba(255,255,255,0.04);
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+    .testi-card {
+      background: rgba(255,255,255,0.06);
+      padding: 2.5rem;
+      border-left: 3px solid var(--gold);
+    }
+    .testi-text {
+      font-family: var(--font-body);
+      font-size: 1.1rem; font-style: italic;
+      color: rgba(245,240,232,0.8);
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+    }
+    .testi-author {
+      font-family: var(--font-mono); font-size: 0.6rem;
+      letter-spacing: 0.2em; color: var(--gold);
+      text-transform: uppercase;
+    }
+    .testi-stars { color: var(--gold); font-size: 0.8rem; margin-bottom: 0.8rem; }
+
+    /* ─── NEWSLETTER ─── */
+    #newsletter {
+      background: linear-gradient(135deg, #0a0a0a, #111, #0a0a0a);
+      text-align: center;
+      padding: 8rem 4rem;
+    }
+    #newsletter .section-title { font-size: clamp(2rem, 4vw, 4rem); }
+    #newsletter p {
+      color: var(--grey); max-width: 500px;
+      margin: 0 auto 3rem; font-size: 1.05rem;
+    }
+    .newsletter-form {
+      display: flex; max-width: 500px;
+      margin: 0 auto; gap: 0;
+    }
+    .newsletter-form input {
+      flex: 1;
+      padding: 1.1rem 1.5rem;
+      background: var(--bg3);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-right: none;
+      color: var(--white);
+      font-family: var(--font-body); font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .newsletter-form input::placeholder { color: var(--grey); }
+    .newsletter-form input:focus { border-color: var(--gold); }
+    .newsletter-form button {
+      padding: 1.1rem 2rem;
+      background: var(--gold);
+      color: #000;
+      border: none; cursor: none;
+      font-family: var(--font-mono); font-size: 0.6rem;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      font-weight: 700;
+      transition: background 0.3s;
+    }
+    .newsletter-form button:hover { background: var(--gold2); }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: #000;
+      padding: 4rem;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 3rem;
+    }
+    .footer-brand .nav-logo { font-size: 2.5rem; display: block; margin-bottom: 1rem; }
+    .footer-brand p { color: var(--grey); font-size: 0.95rem; max-width: 260px; }
+    .footer-col h4 {
+      font-family: var(--font-mono); font-size: 0.6rem;
+      letter-spacing: 0.25em; color: var(--gold);
+      text-transform: uppercase; margin-bottom: 1.5rem;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; }
+    .footer-col a {
+      color: var(--grey); text-decoration: none;
+      font-size: 0.95rem;
+      transition: color 0.3s;
+    }
+    .footer-col a:hover { color: var(--white); }
+    .footer-bottom {
+      background: #000;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 2rem 4rem;
+      display: flex; justify-content: space-between;
+      font-family: var(--font-mono); font-size: 0.6rem;
+      letter-spacing: 0.15em; color: var(--grey);
+      text-transform: uppercase;
+    }
+
+    /* ─── SCROLL BUTTONS ─── */
+    .scroll-controls {
+      position: fixed;
+      right: 2.5rem; bottom: 2.5rem;
+      display: flex; flex-direction: column; gap: 0.6rem;
+      z-index: 500;
+    }
+    .scroll-btn {
+      width: 50px; height: 50px;
+      background: rgba(10,10,10,0.9);
+      border: 1px solid rgba(201,168,76,0.4);
+      color: var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      cursor: none;
+      transition: background 0.3s, border-color 0.3s, transform 0.2s;
+      font-size: 1.1rem;
+      opacity: 0;
+      pointer-events: none;
+      backdrop-filter: blur(8px);
+    }
+    .scroll-btn.visible { opacity: 1; pointer-events: all; }
+    .scroll-btn:hover { background: var(--gold); color: #000; border-color: var(--gold); transform: scale(1.08); }
+    .scroll-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    /* ─── PROGRESS BAR ─── */
+    #progress-bar {
+      position: fixed; top: 0; left: 0;
+      height: 2px;
+      background: linear-gradient(to right, var(--gold), var(--accent));
+      z-index: 9000;
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    /* ─── THEME TOGGLE ─── */
+    #theme-toggle {
+      position: fixed; top: 1.6rem; right: 12rem;
+      z-index: 1001;
+      background: none; border: 1px solid rgba(201,168,76,0.3);
+      padding: 0.5rem 1rem;
+      cursor: none;
+      display: flex; align-items: center; gap: 0.5rem;
+      font-family: var(--font-mono); font-size: 0.6rem;
+      letter-spacing: 0.15em; color: var(--grey);
+      text-transform: uppercase;
+      transition: all 0.3s;
+    }
+    #theme-toggle:hover { border-color: var(--gold); color: var(--gold); }
+    .toggle-dot {
+      width: 28px; height: 16px;
+      background: var(--bg3);
+      border: 1px solid rgba(201,168,76,0.4);
+      border-radius: 8px;
+      position: relative;
+      transition: background 0.3s;
+    }
+    .toggle-dot::after {
+      content: '';
+      position: absolute; top: 2px; left: 2px;
+      width: 10px; height: 10px;
+      background: var(--gold);
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+    body.light .toggle-dot { background: rgba(201,168,76,0.2); }
+    body.light .toggle-dot::after { transform: translateX(12px); }
+
+    /* ─── LIGHT THEME ─── */
+    body.light {
+      --bg: #f5f0e8;
+      --bg2: #ede8de;
+      --bg3: #e0dbd1;
+      --white: #1a1a1a;
+      --grey: #666;
+    }
+    body.light nav { background: linear-gradient(to bottom, rgba(245,240,232,0.97), transparent); }
+    body.light nav.scrolled { background: rgba(245,240,232,0.98); }
+    body.light #testimonials { background: #c0392b; }
+    body.light footer, body.light .footer-bottom { background: var(--bg2); }
+
+    /* ─── REVEAL ANIMATION ─── */
+    .reveal {
+      opacity: 0; transform: translateY(40px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1024px) {
+      nav { padding: 1.5rem 2rem; }
+      .nav-links { gap: 2rem; }
+      #hero { padding: 0 2rem; }
+      section { padding: 6rem 2rem; }
+      .collection-grid { grid-template-columns: repeat(2, 1fr); }
+      #about { grid-template-columns: 1fr; gap: 4rem; }
+      .about-visual { height: 400px; }
+      footer { grid-template-columns: 1fr 1fr; gap: 2rem; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      #theme-toggle { right: 5rem; }
+      h1 { font-size: 4rem; }
+      .collection-grid { grid-template-columns: 1fr; }
+      .lookbook-grid { grid-template-columns: 1fr; }
+      .look:nth-child(1) { grid-row: auto; }
+      footer { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 0.5rem; text-align: center; }
+      .newsletter-form { flex-direction: column; }
+      .newsletter-form input { border-right: 1px solid rgba(255,255,255,0.1); border-bottom: none; }
+      .scroll-controls { right: 1.2rem; bottom: 1.2rem; }
+      .about-stats { gap: 2rem; }
+    }
+  </style>
 </head>
 <body>
-    <h1>Hello World !</h1>
+
+<!-- Cursor -->
+<div id="cursor"></div>
+
+<!-- Progress bar -->
+<div id="progress-bar"></div>
+
+<!-- Theme Toggle -->
+<button id="theme-toggle" aria-label="Toggle theme">
+  <div class="toggle-dot"></div>
+  <span id="theme-label">JOUR</span>
+</button>
+
+<!-- Hamburger -->
+<button class="hamburger" id="hamburger" aria-label="Menu">
+  <span></span><span></span><span></span>
+</button>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#hero" onclick="closeMenu()">Accueil</a>
+  <a href="#collection" onclick="closeMenu()">Collection</a>
+  <a href="#about" onclick="closeMenu()">À propos</a>
+  <a href="#lookbook" onclick="closeMenu()">Lookbook</a>
+  <a href="#newsletter" onclick="closeMenu()">Contact</a>
+</div>
+
+<!-- Navbar -->
+<nav id="navbar">
+  <a href="#hero" class="nav-logo">NOIR</a>
+  <ul class="nav-links">
+    <li><a href="#collection">Collection</a></li>
+    <li><a href="#about">Maison</a></li>
+    <li><a href="#lookbook">Lookbook</a></li>
+    <li><a href="#testimonials">Presse</a></li>
+    <li><a href="#newsletter">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-line"></div>
+  <p class="hero-tag">— Saison 2025 · Paris</p>
+  <h1>L'art<em>de s'habiller.</em></h1>
+  <p class="hero-sub">Chaque vêtement est une déclaration. Une philosophie taillée dans l'ombre et la lumière.</p>
+  <div class="hero-cta">
+    <a href="#collection" class="btn-primary">Explorer la collection</a>
+    <a href="#about" class="btn-outline">Notre histoire</a>
+  </div>
+  <div class="hero-scroll-hint">Scroll</div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span>Haute Couture</span><span><b>✦</b></span>
+    <span>Savoir-faire Parisien</span><span><b>✦</b></span>
+    <span>Édition Limitée</span><span><b>✦</b></span>
+    <span>Sur-mesure</span><span><b>✦</b></span>
+    <span>Collection 2025</span><span><b>✦</b></span>
+    <span>Prêt-à-porter Luxe</span><span><b>✦</b></span>
+    <span>Haute Couture</span><span><b>✦</b></span>
+    <span>Savoir-faire Parisien</span><span><b>✦</b></span>
+    <span>Édition Limitée</span><span><b>✦</b></span>
+    <span>Sur-mesure</span><span><b>✦</b></span>
+    <span>Collection 2025</span><span><b>✦</b></span>
+    <span>Prêt-à-porter Luxe</span><span><b>✦</b></span>
+  </div>
+</div>
+
+<!-- COLLECTION -->
+<section id="collection">
+  <p class="section-tag reveal">— 01 / Collection</p>
+  <h2 class="section-title reveal">La nouvelle<em>saison.</em></h2>
+  <div class="collection-grid">
+    <div class="card reveal">
+      <div class="card-img">🧥</div>
+      <div class="card-overlay">
+        <p class="card-label">Manteau</p>
+        <p class="card-name">Ombre Profonde</p>
+        <p class="card-price">€ 890</p>
+      </div>
+      <button class="card-btn">+</button>
+    </div>
+    <div class="card reveal">
+      <div class="card-img">👗</div>
+      <div class="card-overlay">
+        <p class="card-label">Robe</p>
+        <p class="card-name">Nuit Velours</p>
+        <p class="card-price">€ 650</p>
+      </div>
+      <button class="card-btn">+</button>
+    </div>
+    <div class="card reveal">
+      <div class="card-img">🥋</div>
+      <div class="card-overlay">
+        <p class="card-label">Veste</p>
+        <p class="card-name">Âme Libre</p>
+        <p class="card-price">€ 720</p>
+      </div>
+      <button class="card-btn">+</button>
+    </div>
+    <div class="card reveal">
+      <div class="card-img">👔</div>
+      <div class="card-overlay">
+        <p class="card-label">Chemise</p>
+        <p class="card-name">Soie Noire</p>
+        <p class="card-price">€ 380</p>
+      </div>
+      <button class="card-btn">+</button>
+    </div>
+    <div class="card reveal">
+      <div class="card-img">🩱</div>
+      <div class="card-overlay">
+        <p class="card-label">Haut</p>
+        <p class="card-name">Corps & Âme</p>
+        <p class="card-price">€ 290</p>
+      </div>
+      <button class="card-btn">+</button>
+    </div>
+    <div class="card reveal">
+      <div class="card-img">👖</div>
+      <div class="card-overlay">
+        <p class="card-label">Pantalon</p>
+        <p class="card-name">Ligne Pure</p>
+        <p class="card-price">€ 460</p>
+      </div>
+      <button class="card-btn">+</button>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-visual reveal">
+    <div class="about-rect">🌑</div>
+    <div class="about-rect">
+      <span>Est.<br/>2015</span>
+    </div>
+    <div class="about-rect"></div>
+  </div>
+  <div class="about-text">
+    <p class="section-tag reveal">— 02 / Maison NOIR</p>
+    <h2 class="section-title reveal">Une maison<em>de caractère.</em></h2>
+    <p class="reveal">NOIR est née d'une obsession : créer des vêtements qui transcendent le temps. Chaque pièce est pensée, dessinée et façonnée à Paris, dans un atelier où l'exigence n'est jamais négociable.</p>
+    <p class="reveal">Nous croyons que la mode est un langage. Que porter NOIR, c'est choisir l'élégance sans compromis — une silhouette qui parle avant même les mots.</p>
+    <div class="about-stats">
+      <div class="reveal">
+        <span class="stat-num">10</span>
+        <span class="stat-label">Ans d'existence</span>
+      </div>
+      <div class="reveal">
+        <span class="stat-num">47</span>
+        <span class="stat-label">Pays présents</span>
+      </div>
+      <div class="reveal">
+        <span class="stat-num">120</span>
+        <span class="stat-label">Pièces par saison</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LOOKBOOK -->
+<section id="lookbook">
+  <p class="section-tag reveal">— 03 / Lookbook</p>
+  <h2 class="section-title reveal">L'<em>essence</em> de la saison.</h2>
+  <div class="lookbook-grid">
+    <div class="look reveal">
+      <div class="look-inner">🖤</div>
+      <p class="look-caption">Look 01 — La Nuit / Soir de gala</p>
+    </div>
+    <div class="look reveal">
+      <div class="look-inner">✨</div>
+      <p class="look-caption">Look 02 — Lumière dorée</p>
+    </div>
+    <div class="look reveal">
+      <div class="look-inner">🌿</div>
+      <p class="look-caption">Look 03 — Escapade verte</p>
+    </div>
+    <div class="look reveal">
+      <div class="look-inner">🌙</div>
+      <p class="look-caption">Look 04 — Minuit Paris</p>
+    </div>
+    <div class="look reveal">
+      <div class="look-inner">🔥</div>
+      <p class="look-caption">Look 05 — Braise intense</p>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <p class="section-tag reveal">— 04 / Presse & Avis</p>
+  <h2 class="section-title reveal">Ce qu'ils<em>disent de nous.</em></h2>
+  <div class="testimonials-grid">
+    <div class="testi-card reveal">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">« NOIR redéfinit l'élégance française avec une précision chirurgicale. Chaque couture est une déclaration d'amour au vêtement. »</p>
+      <p class="testi-author">— Vogue Paris, Printemps 2025</p>
+    </div>
+    <div class="testi-card reveal">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">« Une collection qui bouleverse les codes. NOIR impose sa vision avec une assurance rare dans la mode contemporaine. »</p>
+      <p class="testi-author">— Le Figaro Madame</p>
+    </div>
+    <div class="testi-card reveal">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">« Je porte NOIR depuis trois ans. C'est la seule marque qui me donne l'impression que le vêtement a été fait pour moi. »</p>
+      <p class="testi-author">— Isabelle M., Cliente fidèle</p>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section id="newsletter">
+  <p class="section-tag reveal">— 05 / Restez connectés</p>
+  <h2 class="section-title reveal">Dans les coulisses<em>de NOIR.</em></h2>
+  <p class="reveal">Accédez en avant-première aux nouvelles collections, invitations privées et éditoriaux exclusifs.</p>
+  <div class="newsletter-form reveal">
+    <input type="email" placeholder="votre@email.com" />
+    <button type="button">S'inscrire</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    <a href="#hero" class="nav-logo">NOIR</a>
+    <p>La maison de l'élégance contemporaine. Paris, France.</p>
+  </div>
+  <div class="footer-col">
+    <h4>Boutique</h4>
+    <ul>
+      <li><a href="#">Femme</a></li>
+      <li><a href="#">Homme</a></li>
+      <li><a href="#">Accessoires</a></li>
+      <li><a href="#">Éditions limitées</a></li>
+    </ul>
+  </div>
+  <div class="footer-col">
+    <h4>Maison</h4>
+    <ul>
+      <li><a href="#">Notre histoire</a></li>
+      <li><a href="#">Atelier</a></li>
+      <li><a href="#">Presse</a></li>
+      <li><a href="#">Carrières</a></li>
+    </ul>
+  </div>
+  <div class="footer-col">
+    <h4>Suivez-nous</h4>
+    <ul>
+      <li><a href="#">Instagram</a></li>
+      <li><a href="#">Pinterest</a></li>
+      <li><a href="#">LinkedIn</a></li>
+      <li><a href="#">Newsletter</a></li>
+    </ul>
+  </div>
+</footer>
+<div class="footer-bottom">
+  <span>© 2025 NOIR — Tous droits réservés</span>
+  <span>Politique de confidentialité · CGV</span>
+</div>
+
+<!-- Scroll Controls -->
+<div class="scroll-controls">
+  <button class="scroll-btn" id="scroll-top" title="Haut de page" aria-label="Scroll to top">
+    <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+  <button class="scroll-btn visible" id="scroll-down" title="Bas de page" aria-label="Scroll down">
+    <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+  </button>
+</div>
+
+<script>
+  /* ─── CURSOR ─── */
+  const cursor = document.getElementById('cursor');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top  = e.clientY + 'px';
+  });
+  document.querySelectorAll('a,button,.card,.look').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('grow'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('grow'));
+  });
+
+  /* ─── PROGRESS BAR ─── */
+  const bar = document.getElementById('progress-bar');
+  window.addEventListener('scroll', () => {
+    const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
+    bar.style.width = Math.min(pct, 100) + '%';
+  });
+
+  /* ─── NAVBAR SCROLL ─── */
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  /* ─── HAMBURGER / MOBILE MENU ─── */
+  const hbg  = document.getElementById('hamburger');
+  const menu = document.getElementById('mobile-menu');
+  hbg.addEventListener('click', () => {
+    hbg.classList.toggle('open');
+    menu.classList.toggle('open');
+    document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+  });
+  function closeMenu() {
+    hbg.classList.remove('open');
+    menu.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  /* ─── THEME TOGGLE ─── */
+  const themeBtn   = document.getElementById('theme-toggle');
+  const themeLabel = document.getElementById('theme-label');
+  let isDark = true;
+  themeBtn.addEventListener('click', () => {
+    isDark = !isDark;
+    document.body.classList.toggle('light', !isDark);
+    themeLabel.textContent = isDark ? 'JOUR' : 'NUIT';
+  });
+
+  /* ─── SCROLL BUTTONS ─── */
+  const btnTop  = document.getElementById('scroll-top');
+  const btnDown = document.getElementById('scroll-down');
+
+  window.addEventListener('scroll', () => {
+    const atBottom = window.innerHeight + window.scrollY >= document.body.scrollHeight - 80;
+    const atTop    = window.scrollY < 100;
+    btnTop.classList.toggle('visible',  !atTop);
+    btnDown.classList.toggle('visible', !atBottom);
+  });
+
+  btnTop.addEventListener('click',  () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  btnDown.addEventListener('click', () => {
+    const sections = [...document.querySelectorAll('section, footer')];
+    const next = sections.find(s => s.getBoundingClientRect().top > 60);
+    if (next) next.scrollIntoView({ behavior: 'smooth' });
+    else window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  });
+
+  /* ─── REVEAL ON SCROLL ─── */
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(el => observer.observe(el));
+
+  /* ─── NEWSLETTER BUTTON ─── */
+  document.querySelector('.newsletter-form button').addEventListener('click', () => {
+    const input = document.querySelector('.newsletter-form input');
+    if (input.value.includes('@')) {
+      input.value = '';
+      input.placeholder = '✓ Merci ! Vous êtes inscrit(e).';
+      input.style.borderColor = 'var(--gold)';
+    } else {
+      input.style.borderColor = '#c0392b';
+      input.placeholder = 'Adresse email invalide';
+    }
+  });
+</script>
 </body>
 </html>
+
